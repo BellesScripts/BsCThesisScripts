@@ -1,0 +1,86 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.integrate import trapz
+from Qhfunctie import Get_Function
+
+def get_Qdata(name):
+    qjuly = pd.read_csv('~/PythonBscThesis/Q_july/%s_july_q.csv' %name, sep=';', usecols=['12', '13', '14', '15', '16', '17', '18','19','20','21','22','23','24','25','26','27','28','29','30'], nrows=24)
+    q=list(qjuly['12'])+list(qjuly['13'])+list(qjuly['14'])+list(qjuly['15'])+list(qjuly['16'])+list(qjuly['17'])+list(qjuly['18'])+list(qjuly['19'])\
+      +list(qjuly['20'])+list(qjuly['21'])+list(qjuly['22'])+list(qjuly['23'])+list(qjuly['24'])+list(qjuly['25'])+list(qjuly['26'])+list(qjuly['27'])+list(qjuly['28'])+list(qjuly['29'])+list(qjuly['30'])
+    hjuly=pd.read_csv('~/PythonBscThesis/H_july/%s_july.csv' %name, sep=';', usecols=['12', '13', '14', '15', '16', '17', '18','19','20','21','22','23','24','25','26','27','28','29','30'], nrows=24)
+    h=list(hjuly['12'])+list(hjuly['13'])+list(hjuly['14'])+list(hjuly['15'])+list(hjuly['16'])+list(hjuly['17'])+list(hjuly['18'])+list(hjuly['19'])\
+      +list(hjuly['20'])+list(hjuly['21'])+list(hjuly['22'])+list(hjuly['23'])+list(hjuly['24'])+list(hjuly['25'])+list(hjuly['26'])+list(hjuly['27'])+list(hjuly['28'])+list(hjuly['29'])+list(hjuly['30'])
+    timehoursh = list(range(len(h)))
+    timehoursq = list(range(len(q)))
+    #a, b, c, d = Get_Function(name)
+    #print(a,b,c,d)
+    #qnew=[]
+    #for i in range(len(h)):
+     #   qex=a*h[i]**3+b*h[i]**2+c*h[i]+d
+      #  qnew.append(qex)
+    #print(qnew)
+    #qnewdata=np.array(qnew)
+    xdatah= np.array(timehoursh)
+    xdataq = np.array(timehoursq)
+    ydata=np.array(q)
+    area=trapz(y = ydata, x = xdataq)*3600
+    #area2=trapz(y = qnewdata, x = xdatah)*3600
+    print(max(q))
+    print(area)
+    #print(area2)
+    plt.plot(timehoursq,q, label='Original calculated discharge')
+    #plt.plot(timehoursh,qnew, label='New calculated discharge')
+    plt.ylabel('Discharge in m^3/s')
+    plt.title('Discharge in July of %s' %name)
+    labels=list(range(12,31))
+    print(labels)
+    plt.xticks(np.arange(0,len(h),step=24), labels)#,range(19,30))
+    plt.xlabel('Day in July')
+    plt.legend()
+    plt.grid()
+    plt.savefig('Qjuly_%s.pdf' % name)
+    plt.show()
+
+#get_Qdata('Malmedy')
+
+def GetDifference(name1,name2):
+    h1=GetStageJuly('%s' %name1)
+    print(h1)
+    h2=GetStageJuly('%s' %name2)
+    print(h2)
+    diff=[]
+    for i in range(len(h1)):
+        df=h2[i]-h1[i]
+        diff.append(df)
+    print(diff)
+    plt.plot(diff, label='difference')
+    plt.legend()
+    return plt.show()
+
+
+def GetStageJuly(name):
+    hjuly = pd.read_csv('~/PythonBscThesis/H_july/%s_july.csv' % name, sep=';',
+                        usecols=['12', '13', '14', '15', '16', '17', '18','19','20','21','22','23','24','25','26','27','28','29','30','31'], nrows=24)
+    h = list(hjuly['12']) + list(hjuly['13']) + list(hjuly['14']) + list(hjuly['15']) + list(hjuly['16']) + list(
+        hjuly['17']) + list(hjuly['18']) + list(hjuly['19']) \
+        + list(hjuly['20']) + list(hjuly['21']) + list(hjuly['22']) + list(hjuly['23']) + list(hjuly['24']) + list(
+        hjuly['25']) + list(hjuly['26']) + list(hjuly['27']) + list(hjuly['28']) + list(hjuly['29']) + list(hjuly['30'])+ list(hjuly['31'])
+    return h
+
+
+
+def plotMoreCatchments(names):
+    for i in names:
+        name=i
+        h=GetStageJuly(name)
+        timehours = list(range(len(h)))
+        plt.plot(timehours,h, label='%s' %name)
+    plt.title('Stage evolution july 2021 of different measurment stations')
+    plt.legend()
+    plt.grid()
+    #GetDifference('Bullingen','Wirtzfeld')
+    plt.show()
+
+
+plotMoreCatchments(['Beverce','Malmedy','Malmedyenne','Stavelot','Targnon','Martinrive'])
