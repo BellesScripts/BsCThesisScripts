@@ -1,0 +1,43 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.integrate import trapz
+from shapely.geometry import Polygon
+from shapely.geometry import LineString
+from shapely.ops import unary_union, polygonize
+import similaritymeasures
+from scipy.spatial import distance
+
+
+
+def AreaCross(name, depth):
+    data=pd.read_csv('~/PythonBscThesis/Data/Extrapolatie.csv', sep=';', nrows=40)
+    index='x%s' %name
+    index2='elev%s' %name
+    xCatch=list((data[index]))
+    elevCatch=list(data[index2])
+    #print(xBev)
+    #print(elevBev)
+    plt.plot(xCatch,elevCatch)
+    plt.axhline(y = depth, color = 'r', linestyle = '-')
+    plt.show()
+    dp=[]
+    for i in range(len(xCatch)):
+        dp.append(depth)
+    xdata = np.array(xCatch)
+    ydata = np.array(elevCatch)
+    y2d = np.array(dp)
+
+    exp_data = np.zeros((len(xCatch), 2))
+    exp_data[:, 0] = xdata
+    exp_data[:, 1] = ydata
+
+    num_data = np.zeros((len(xCatch), 2))
+    num_data[:, 0] = xdata
+    num_data[:, 1] = y2d
+
+    lastarea=similaritymeasures.area_between_two_curves(exp_data,num_data)
+    print('Lastarea=',lastarea)
+
+
+AreaCross('Beverce',1.15)
