@@ -1,0 +1,80 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.optimize as opt
+
+def get_Julydata(name_july, name_july_q):
+    hjuly=pd.read_csv(name_july,  sep=';', usecols=['12','13','14','15','16','17','18'], nrows=24)
+    qjuly = pd.read_csv(name_july_q, sep=';', usecols=['12', '13', '14', '15', '16', '17', '18'], nrows=24)
+    hh=list(hjuly['12'])+list(hjuly['13'])+list(hjuly['14'])+list(hjuly['15'])+list(hjuly['16'])+list(hjuly['17'])+list(hjuly['18'])
+    qh=list(qjuly['12'])+list(qjuly['13'])+list(qjuly['14'])+list(qjuly['15'])+list(qjuly['16'])+list(qjuly['17'])+list(qjuly['18'])
+    return(hh,qh)
+
+#get_Julydata('~/PythonBscThesis/H_july/Beverce_july.csv', '~/PythonBscThesis/Q_july/Beverce_july_q.csv')
+
+def func(x, a, b, c, d):
+    return a*x**3+b*x**2+c*x+d
+
+def get_qhdiagram (name):
+    hfile=pd.read_csv('~/PythonBscThesis/Data/%s_level.csv' %name, sep=';',header=1, usecols=['date', ' heure12'])
+    qfile=pd.read_csv('~/PythonBscThesis/Data/%s_discharge.csv' %name, sep=';', header=1,usecols=['date', ' heure12'])
+    length=len(qfile)
+    h=hfile[' heure12'][3653:length]
+    q=qfile[' heure12'][3653:]
+    print(h)
+    print(q)
+    hh,qh=get_Julydata('~/PythonBscThesis/H_july/%s_july.csv' %name, '~/PythonBscThesis/Q_july/%s_july_q.csv' %name)
+    #extrap=pd.read_csv('~/PythonBscThesis/Data/Extrap_%s.csv' %name, sep=';')
+    #hex=extrap['stage']
+    #qex=extrap['Qtot']
+    plt.scatter(h,q, s=16, label='Q-h', zorder=3)
+    plt.scatter(hh,qh, s=16, label='Q-h during july 2021', zorder=1)
+    #plt.scatter(hex,qex, s=16, label='Extrapolated conveyance method', zorder=2)
+    plt.xlabel('Stage in m')
+    plt.ylabel('Discharge in m^3/s')
+    plt.title('Q-h relationship for %s' %name)
+    plt.grid()
+    #hnp=np.array(h)
+    #hexnp=np.array(hex)
+    #qexnp=np.array(qex)
+    #plt.show()
+    #a,b,c,d = np.polyfit(hex, qex, 3)
+    #a1=str(a)
+    #a2=str(b)
+    #a3=str(c)
+    #a4=str(d)
+    #function='%s*E2^3+%s*E2^2+%s*E2+%s' %(a1,a2,a3,a4)
+    #optimizedParameters, pcov = opt.curve_fit(func, hexnp, qexnp)
+    #plt.plot(hexnp,func(hexnp, *optimizedParameters),linewidth=2.5, linestyle='dashed', color='g', label='Extrapolation')
+    plt.legend()
+    plt.savefig('Qhoriginal_%s.pdf' % name)
+    '''hmax=max(hh)
+    print(max(qh))
+    qexmax=a*hmax**3+b*hmax**2+c*hmax+d
+    print(qexmax)
+    print(qexmax-max(qh))
+    newmax=min(hex)+max(hh)
+    print(newmax)
+    qnewqmax=a*newmax**3+b*newmax**2+c*newmax+d
+
+    print(qnewqmax)
+    print(max(qh))
+    print(max(qh)-qnewqmax)'''
+    plt.show()
+
+get_qhdiagram('Malmedy')
+
+def Get_Function(name):
+    extrap=pd.read_csv('~/PythonBscThesis/Data/Extrap_%s.csv' %name, sep=';')
+    hex=extrap['stage']
+    qex=extrap['Qtot']
+    e,f,g,h= np.polyfit(hex, qex, 3)
+    e1=str(e)
+    f1=str(f)
+    g1=str(g)
+    h1=str(h)
+    function2 = '%s*h[i]**3+%s*h[i]**2+%s*h[i]+%s' % (e1, f1, g1, h1)
+    #print('Function parameters extrap are:', function2)
+    return e,f,g,h
+
+#Get_Function('Beverce')
